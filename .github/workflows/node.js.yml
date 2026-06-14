@@ -14,12 +14,18 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # Dummy URL so prisma.config.ts can resolve env("DATABASE_URL") during
+    # `prisma generate` / `build`. No real DB is needed — every page is
+    # force-dynamic, so the build never connects. Job-level env covers all steps.
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+
     strategy:
       matrix:
         node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
-  
-    steps:    
+
+    steps:
     - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v5
@@ -30,5 +36,3 @@ jobs:
     - run: npx prisma generate          # ← 追加（client生成）
     - run: npm run lint                  # ← npm test の代わり（lintは存在）
     - run: npm run build --if-present
-      env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres 
