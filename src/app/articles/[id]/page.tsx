@@ -4,26 +4,12 @@ import { ExternalLink } from "lucide-react";
 
 import { ArticleActions } from "@/components/feed/article-actions";
 import { AppShell } from "@/components/layout/app-shell";
+import { renderArticleHtml } from "@/lib/article-content";
 import { getCurrentUser } from "@/lib/auth/guards";
 import { prisma } from "@/lib/db";
 import { formatFullDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
-
-function toPlainText(value?: string | null) {
-  if (!value) {
-    return "";
-  }
-
-  return value
-    .replace(/<\/(p|div|li|h[1-6]|blockquote|tr)>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/[^\S\n]+/g, " ")
-    .replace(/[^\S\n]*\n[^\S\n]*/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-}
 
 type PageProps = {
   params: Promise<{
@@ -127,6 +113,8 @@ export default async function ArticleDetailPage({ params }: PageProps) {
     },
   });
 
+  const bodyHtml = await renderArticleHtml(article.content);
+
   return (
     <AppShell
       pathname={`/articles/${article.id}`}
@@ -172,17 +160,17 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
         <section className="rounded-2xl border bg-card p-6">
           <h2 className="text-lg font-semibold">本文 / 抜粋</h2>
-          <div className="mt-4 max-w-[68ch] space-y-4 text-[15px] leading-8 text-foreground/90">
-            {(toPlainText(article.content) || article.summary)
-              .split(/\n{2,}/)
-              .map((paragraph) => paragraph.trim())
-              .filter(Boolean)
-              .map((paragraph, index) => (
-                <p key={index} className="whitespace-pre-wrap">
-                  {paragraph}
-                </p>
-              ))}
-          </div>
+          {bodyHtml ? (
+            <div
+              className="article-prose mt-4"
+              // Sanitized + highlighted in renderArticleHtml (rehype-sanitize).
+              dangerouslySetInnerHTML={{ __html: bodyHtml }}
+            />
+          ) : (
+            <p className="mt-4 max-w-[68ch] text-[15px] leading-8 text-foreground/90">
+              {article.summary}
+            </p>
+          )}
           <p className="mt-6 text-xs text-muted-foreground">
             許諾のない全文転載を避けるため、表示内容は RSS に含まれる本文または抜粋に限ります。
           </p>

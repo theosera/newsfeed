@@ -128,3 +128,156 @@
     @apply font-sans;
   }
 }
+
+/* Rendered RSS article body. Source HTML is sanitized + highlighted in
+   renderArticleHtml; here we style the allowed elements for readability. */
+.article-prose {
+  max-width: 68ch;
+  font-size: 15px;
+  line-height: 1.75;
+  color: color-mix(in oklab, var(--foreground) 90%, transparent);
+}
+.article-prose > :first-child {
+  margin-top: 0;
+}
+.article-prose p {
+  margin: 1rem 0;
+}
+.article-prose h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 2rem 0 0.75rem;
+  color: var(--foreground);
+}
+.article-prose h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--foreground);
+}
+.article-prose h4 {
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  color: var(--foreground);
+}
+.article-prose strong {
+  font-weight: 600;
+  color: var(--foreground);
+}
+.article-prose em {
+  font-style: italic;
+}
+.article-prose ul,
+.article-prose ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+.article-prose ul {
+  list-style: disc;
+}
+.article-prose ol {
+  list-style: decimal;
+}
+.article-prose li {
+  margin: 0.35rem 0;
+}
+.article-prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.article-prose blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  margin: 1.25rem 0;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.article-prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+.article-prose hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: 2rem 0;
+}
+/* Inline code */
+.article-prose :not(pre) > code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.85em;
+  background: var(--muted);
+  color: var(--foreground);
+  padding: 0.15em 0.4em;
+  border-radius: 0.35rem;
+}
+/* Code blocks — editor/Obsidian-like dark card, consistent across themes */
+.article-prose pre {
+  margin: 1.25rem 0;
+  padding: 1rem 1.1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #30363d;
+  background: #0d1117;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.article-prose pre code {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  background: transparent;
+  color: #e6edf3;
+  padding: 0;
+}
+
+/* highlight.js token palette (github-dark flavored) applied to rehype-highlight output */
+.article-prose .hljs-comment,
+.article-prose .hljs-quote {
+  color: #8b949e;
+  font-style: italic;
+}
+.article-prose .hljs-keyword,
+.article-prose .hljs-selector-tag,
+.article-prose .hljs-literal,
+.article-prose .hljs-type,
+.article-prose .hljs-built_in {
+  color: #ff7b72;
+}
+.article-prose .hljs-string,
+.article-prose .hljs-regexp,
+.article-prose .hljs-meta-string {
+  color: #a5d6ff;
+}
+.article-prose .hljs-number,
+.article-prose .hljs-symbol {
+  color: #79c0ff;
+}
+.article-prose .hljs-title,
+.article-prose .hljs-title.function_,
+.article-prose .hljs-section {
+  color: #d2a8ff;
+}
+.article-prose .hljs-attr,
+.article-prose .hljs-attribute,
+.article-prose .hljs-variable,
+.article-prose .hljs-template-variable {
+  color: #ffa657;
+}
+.article-prose .hljs-name,
+.article-prose .hljs-tag,
+.article-prose .hljs-selector-id,
+.article-prose .hljs-selector-class {
+  color: #7ee787;
+}
+.article-prose .hljs-meta,
+.article-prose .hljs-comment.doctag {
+  color: #8b949e;
+}
+.article-prose .hljs-emphasis {
+  font-style: italic;
+}
+.article-prose .hljs-strong {
+  font-weight: 600;
+}
