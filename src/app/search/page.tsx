@@ -4,21 +4,27 @@ import { normalizeSearchParams, type PageSearchParams } from "@/lib/search-param
 
 export const dynamic = "force-dynamic";
 
-export default async function Home({
+export default async function SearchPage({
   searchParams,
 }: {
   searchParams?: PageSearchParams;
 }) {
   const user = await getCurrentUser();
   const params = await normalizeSearchParams(searchParams);
+  const search = params.q ?? "";
 
   return (
     <FeedPage
-      title="Top Feed"
-      description="複数ソースのニュースを一画面で素早く追える、Newsify ライクなトップフィードです。"
-      pathname="/"
+      title="Search"
+      description={
+        search
+          ? `「${search}」の検索結果です。`
+          : "タイトル、抜粋、ソース名で記事を検索できます。"
+      }
+      pathname="/search"
       searchParams={params}
       currentUser={user}
+      search={search}
     />
   );
 }

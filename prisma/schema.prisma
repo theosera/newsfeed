@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ArticleStatus {
+  PUBLISHED
+  HIDDEN
+  ERROR
+}
+
+enum LayoutMode {
+  CARD
+  LIST
+  NEWSPAPER
+}
+
+enum ThemePreference {
+  SYSTEM
+  LIGHT
+  DARK
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  passwordHash  String?
+  emailVerified DateTime?
+  image         String?
+  role          Role            @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  articleReads  ArticleRead[]
+  bookmarks     Bookmark[]
+  settings      UserSetting?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  description String?
+  sources   Source[]
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Source {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  url           String         @unique
+  websiteUrl    String?
+  description   String?
+  enabled       Boolean        @default(true)
+  lastFetchedAt DateTime?
+  categoryId    String
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  articles      Article[]
+  fetchLogs     FeedFetchLog[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([categoryId])
+  @@index([enabled])
+}
+
+model Article {
+  id           String        @id @default(cuid())
+  sourceId     String
+  categoryId   String
+  title        String
+  url          String        @unique
+  canonicalUrl String?       @unique
+  summary      String        @db.Text
+  content      String?       @db.Text
+  thumbnailUrl String?
+  publishedAt  DateTime
+  fetchedAt    DateTime      @default(now())
+  language     String        @default("ja")
+  status       ArticleStatus @default(PUBLISHED)
+  source       Source        @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  category     Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  reads        ArticleRead[]
+  bookmarks    Bookmark[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([sourceId, publishedAt(sort: Desc)])
+  @@index([categoryId, publishedAt(sort: Desc)])
+  @@index([publishedAt(sort: Desc)])
+  @@index([status])
+}
+
+model ArticleRead {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  readAt    DateTime @default(now())
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, readAt(sort: Desc)])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@index([userId, createdAt(sort: Desc)])
+}
+
+model FeedFetchLog {
+  id           String   @id @default(cuid())
+  sourceId      String
+  success       Boolean
+  fetchedCount  Int      @default(0)
+  importedCount Int      @default(0)
+  skippedCount  Int      @default(0)
+  errorMessage  String?  @db.Text
+  fetchedAt     DateTime @default(now())
+  source        Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, fetchedAt(sort: Desc)])
+}
+
+model UserSetting {
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  theme         ThemePreference @default(SYSTEM)
+  layout        LayoutMode      @default(CARD)
+  compactMode   Boolean         @default(false)
+  fontScale     Int             @default(100)
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
