@@ -74,7 +74,7 @@ export function ArticleCard({
 
           <Link href={`/articles/${article.id}`} className="block">
             <h2 className="text-lg font-semibold leading-7">{article.title}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            <p className="mt-2 text-sm leading-6 text-foreground/70">
               {truncate(article.summary, compact ? 120 : 180)}
             </p>
           </Link>

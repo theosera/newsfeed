@@ -15,7 +15,14 @@ function toPlainText(value?: string | null) {
     return "";
   }
 
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/<\/(p|div|li|h[1-6]|blockquote|tr)>/gi, "\n\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/[^\S\n]+/g, " ")
+    .replace(/[^\S\n]*\n[^\S\n]*/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 type PageProps = {
@@ -140,7 +147,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
           </div>
 
           <h1 className="text-3xl font-semibold leading-tight">{article.title}</h1>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">
+          <p className="mt-4 max-w-[68ch] text-base leading-7 text-foreground/80">
             {article.summary}
           </p>
 
@@ -165,10 +172,18 @@ export default async function ArticleDetailPage({ params }: PageProps) {
 
         <section className="rounded-2xl border bg-card p-6">
           <h2 className="text-lg font-semibold">本文 / 抜粋</h2>
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
-            {toPlainText(article.content) || article.summary}
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-4 max-w-[68ch] space-y-4 text-[15px] leading-8 text-foreground/90">
+            {(toPlainText(article.content) || article.summary)
+              .split(/\n{2,}/)
+              .map((paragraph) => paragraph.trim())
+              .filter(Boolean)
+              .map((paragraph, index) => (
+                <p key={index} className="whitespace-pre-wrap">
+                  {paragraph}
+                </p>
+              ))}
+          </div>
+          <p className="mt-6 text-xs text-muted-foreground">
             許諾のない全文転載を避けるため、表示内容は RSS に含まれる本文または抜粋に限ります。
           </p>
         </section>
