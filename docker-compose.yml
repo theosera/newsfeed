@@ -11,6 +11,34 @@ services:
       - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U newsfeed -d newsfeed"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      target: runner
+    container_name: newsfeed-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # AUTH_SECRET and OAuth credentials are read from .env (never committed).
+    # DATABASE_URL / NEXTAUTH_URL below override .env for the container network.
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://newsfeed:newsfeed@postgres:5432/newsfeed?schema=public
+      NEXTAUTH_URL: http://localhost:3000
+      NODE_ENV: production
+      # Run the idempotent seed on startup. Set to "false" after first boot
+      # if you prefer to keep manually managed data.
+      RUN_SEED: "true"
+    ports:
+      - "3000:3000"
 
 volumes:
   postgres-data:

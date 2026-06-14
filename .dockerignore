@@ -1,0 +1,27 @@
+# Dependencies and build artifacts are produced inside the image.
+# Crucially, host node_modules contains the WRONG platform binaries
+# (darwin) and must never be copied into the linux image.
+node_modules
+.next
+out
+build
+
+# Local env / secrets — provided at runtime via compose, never baked in.
+.env
+.env.*
+!.env.example
+
+# VCS / tooling
+.git
+.gitignore
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Logs and misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+coverage
+*.tsbuildinfo
