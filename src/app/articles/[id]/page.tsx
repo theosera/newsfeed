@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 
 import { ArticleActions } from "@/components/feed/article-actions";
+import { ArticleBody } from "@/components/feed/article-body";
 import { AppShell } from "@/components/layout/app-shell";
 import { renderArticleHtml } from "@/lib/article-content";
 import { getCurrentUser } from "@/lib/auth/guards";
@@ -161,11 +162,7 @@ export default async function ArticleDetailPage({ params }: PageProps) {
         <section className="rounded-2xl border bg-card p-6">
           <h2 className="text-lg font-semibold">本文 / 抜粋</h2>
           {bodyHtml ? (
-            <div
-              className="article-prose mt-4"
-              // Sanitized + highlighted in renderArticleHtml (rehype-sanitize).
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
+            <ArticleBody html={bodyHtml} />
           ) : (
             <p className="mt-4 max-w-[68ch] text-[15px] leading-8 text-foreground/90">
               {article.summary}
