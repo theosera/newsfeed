@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireAdminApi } from "@/lib/auth/guards";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 import { categorySchema } from "@/lib/validators";
 
 export async function GET() {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
     include: {
@@ -21,6 +25,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const body = await request.json();
   const parsed = categorySchema.safeParse(body);
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireAdminApi } from "@/lib/auth/guards";
 import { prisma } from "@/lib/db";
 import { slugify } from "@/lib/slugify";
 import { categorySchema } from "@/lib/validators";
@@ -11,6 +12,9 @@ type RouteContext = {
 };
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const { id } = await context.params;
   const body = await request.json();
   const parsed = categorySchema.safeParse(body);
@@ -35,6 +39,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 }
 
 export async function DELETE(_: NextRequest, context: RouteContext) {
+  const denied = await requireAdminApi();
+  if (denied) return denied;
+
   const { id } = await context.params;
 
   await prisma.category.delete({
